@@ -28,9 +28,9 @@ add_action('admin_menu', 'ainewsposter_admin_menu');
 function ainewsposter_configuration_page() {
   // Enqueue jQuery UI for tabs
   wp_enqueue_script('jquery-ui-tabs');
-  wp_enqueue_style('jquery-ui-css', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css');
-  wp_enqueue_style('select2', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css');
-  wp_enqueue_script('select2', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js', array('jquery'));
+  wp_enqueue_style('jquery-ui-css', plugins_url('css/vendor/jquery-ui.css', __FILE__));
+  wp_enqueue_style('select2', plugins_url('css/vendor/select2.min.css', __FILE__));
+  wp_enqueue_script('select2', plugins_url('js/vendor/select2.min.js', __FILE__), array('jquery'));
   $last_tab_index = get_option('ainewsposter_last_tab_index', 0);
   // Get options for Post Configuration summary
   $news_query = get_option('ainewsposter_news_query');
