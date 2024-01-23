@@ -5,6 +5,8 @@
  * Description: AI news summarization and aggregation service for WordPress. 
  * Version: 1.0.0
  * Author: Osiris Development LLC
+ * License: GPLv3
+ * License URI: http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 require_once plugin_dir_path(__FILE__) . 'classes/news_fetcher.php';
