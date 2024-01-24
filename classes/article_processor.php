@@ -1,6 +1,6 @@
 <?php
 
-class ArticleProcessor {
+class AINewsPosterArticleProcessor {
   private $api_key;
   private $article_url;
 

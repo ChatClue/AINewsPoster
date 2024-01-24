@@ -1,6 +1,6 @@
 <?php
 
-class ArticleGenerator {
+class AINewsPosterArticleGenerator {
   private $api_key;
   private $prompt;
   private $model;

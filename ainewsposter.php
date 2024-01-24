@@ -291,8 +291,8 @@ function ainewsposter_ajax_fetch_articles() {
   $freshness = get_option('ainewsposter_news_freshness', 'Day');
   $mkt = get_option('ainewsposter_news_mkt', 'en-US');
 
-  // Initialize NewsFetcher with the configuration options
-  $news_fetcher = new NewsFetcher($fetch_api_key, $query, $language, $count, $sortBy, $freshness, $mkt);
+  // Initialize AINewsPosterNewsFetcher with the configuration options
+  $news_fetcher = new AINewsPosterNewsFetcher($fetch_api_key, $query, $language, $count, $sortBy, $freshness, $mkt);
 
   // Fetch the latest news
   $news_items = $news_fetcher->fetch_latest_news();
@@ -369,7 +369,7 @@ function ainewsposter_ajax_process_article() {
   }
 
   // Proceed with processing
-  $article_processor = new ArticleProcessor($pagepixels_api_key, $article_url);
+  $article_processor = new AINewsPosterArticleProcessor($pagepixels_api_key, $article_url);
   $content = $article_processor->get_article_body();
 
   if ($content) {
@@ -411,7 +411,7 @@ function ainewsposter_ajax_generate_article() {
   }
   $prompt = get_option('ainewsposter_article_prompt');
   $prompt = $prompt . "\n\n" . $article['data']['content'];
-  $article_generator = new ArticleGenerator(
+  $article_generator = new AINewsPosterArticleGenerator(
       $openai_api_key, 
       $prompt, 
       $openai_model
@@ -428,7 +428,7 @@ function ainewsposter_ajax_generate_article() {
       'post_title'   => esc_html(html_entity_decode($article_title, ENT_QUOTES | ENT_HTML5)),
       'post_content' => esc_html($rewritten_content) . "\n\n" . '<p><a href="' . esc_url($article_url) . '" target="_blank">Read the original article</a></p>',
       'post_status' => $auto_publish === 'yes' ? 'publish' : 'draft',
-      'post_author' => $post_author_config == '0' ? get_random_author_id() : $post_author_config,
+      'post_author' => $post_author_config == '0' ? ainewsposter_get_random_author_id() : $post_author_config,
       'post_category'=> $selected_categories,
       'tags_input'   => $selected_tags, 
     ];
@@ -494,7 +494,7 @@ function ainewsposter_set_featured_image_from_url($post_id, $image_url) {
   return true;
 }
 
-function get_random_author_id() {
+function ainewsposter_get_random_author_id() {
   $users = get_users(array('role__in' => array('author', 'administrator'), 'fields' => 'ID'));
   return $users[array_rand($users)];
 }

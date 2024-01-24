@@ -1,6 +1,6 @@
 <?php
 
-class NewsFetcher {
+class AINewsPosterNewsFetcher {
   private $query;
   private $language;
   private $count;
