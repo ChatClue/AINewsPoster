@@ -308,20 +308,42 @@ function ainewsposter_ajax_fetch_articles() {
 add_action('wp_ajax_ainewsposter_fetch_articles', 'ainewsposter_ajax_fetch_articles');
 
 function ainewsposter_ajax_check_for_duplicate_posts() {
+  // Sanitize and validate the input
   $article = isset($_POST['article']) ? $_POST['article'] : null;
 
-  $existing_posts = get_posts(array(
-    'meta_key' => 'original_news_url',
-    'meta_value' => $article['url'],
-    'post_status' => array('publish', 'draft'),
-    'posts_per_page' => 1
-  ));
-  if (count($existing_posts) > 0) {
-    wp_send_json_error($existing_posts[0]->ID);
-    wp_die();
-  } else{
-    wp_send_json_success($article);
-    wp_die();
+  if (is_array($article) && isset($article['url'])) {
+      // Sanitize the URL
+      $article_url = sanitize_text_field($article['url']);
+
+      // Validate the URL (Example: Check if it's a valid URL format)
+      if (!filter_var($article_url, FILTER_VALIDATE_URL)) {
+          // If the URL is not valid, send a JSON error
+          wp_send_json_error('Invalid URL');
+          wp_die();
+      }
+
+      // Fetch existing posts with the given meta_value
+      $existing_posts = get_posts(array(
+          'meta_key' => 'original_news_url',
+          'meta_value' => $article_url,
+          'post_status' => array('publish', 'draft'),
+          'posts_per_page' => 1
+      ));
+
+      if (count($existing_posts) > 0) {
+          // If existing posts are found, send the ID as a JSON error
+          wp_send_json_error($existing_posts[0]->ID);
+          wp_die();
+      } else {
+          // Since $article is an array, it's better to escape each element before outputting.
+          $safe_article = array_map('esc_html', $article);
+          wp_send_json_success($safe_article);
+          wp_die();
+      }
+  } else {
+      // If article is not set or not an array, send a JSON error
+      wp_send_json_error('No article data provided');
+      wp_die();
   }
 }
 add_action('wp_ajax_ainewsposter_check_for_duplicate_posts', 'ainewsposter_ajax_check_for_duplicate_posts');
@@ -330,20 +352,32 @@ function ainewsposter_ajax_process_article() {
   $pagepixels_api_key = get_option('ainewsposter_pagepixels_api_key');
   $article = isset($_POST['article']) ? $_POST['article'] : null;
 
-  if (!$article) {
-      wp_send_json_error('No article provided.');
+  if (!$article || !is_array($article)) {
+      wp_send_json_error('No article provided or invalid format.');
       wp_die();
   }
 
-  $article_processor = new ArticleProcessor($pagepixels_api_key, $article['url']);
+  // Sanitize and validate each element in the article array
+  $article_url = isset($article['url']) ? sanitize_text_field($article['url']) : null;
+  $article_name = isset($article['name']) ? sanitize_text_field($article['name']) : null;
+  $article_image = isset($article['image']) ? sanitize_text_field($article['image']) : null;
+
+  // Validate URL
+  if (!filter_var($article_url, FILTER_VALIDATE_URL)) {
+      wp_send_json_error('Invalid URL provided.');
+      wp_die();
+  }
+
+  // Proceed with processing
+  $article_processor = new ArticleProcessor($pagepixels_api_key, $article_url);
   $content = $article_processor->get_article_body();
 
   if ($content) {
       $processed_article = [
-          'title' => $article['name'],
-          'content' => $content,
-          'url' => $article['url'],
-          'image' => $article['image']
+          'title' => esc_html($article_name),
+          'content' => esc_html($content),
+          'url' => esc_url($article_url),
+          'image' => esc_url($article_image)
       ];
       wp_send_json_success($processed_article);
   } else {
@@ -361,8 +395,18 @@ function ainewsposter_ajax_generate_article() {
   $post_author_config = get_option('ainewsposter_article_author');
   $article = isset($_POST['article']) ? $_POST['article'] : null;
 
-  if (!$article) {
-      wp_send_json_error('No article content provided.');
+  if (!$article || !is_array($article) || !isset($article['data'])) {
+    wp_send_json_error('No article content provided or invalid format.');
+    wp_die();
+  }
+  // Sanitize and validate the article data
+  $article_content = isset($article['data']['content']) ? sanitize_text_field($article['data']['content']) : null;
+  $article_title = isset($article['data']['title']) ? sanitize_text_field($article['data']['title']) : null;
+  $article_url = isset($article['data']['url']) ? esc_url_raw($article['data']['url']) : null;
+
+  // Validate URL
+  if (!filter_var($article_url, FILTER_VALIDATE_URL)) {
+      wp_send_json_error('Invalid URL provided.');
       wp_die();
   }
   $prompt = get_option('ainewsposter_article_prompt');
@@ -381,8 +425,8 @@ function ainewsposter_ajax_generate_article() {
     $selected_tags = is_array($selected_tags) ? array_map('intval', $selected_tags) : array();
     // Check if a post with the same original URL already exists
     $post_data = [
-      'post_title' => html_entity_decode($article['data']['title'], ENT_QUOTES | ENT_HTML5),
-      'post_content' => $rewritten_content . "\n\n" . '<p><a href="' . $article['data']['url'] . '" target="_blank">Read the original article</a></p>',
+      'post_title'   => esc_html(html_entity_decode($article_title, ENT_QUOTES | ENT_HTML5)),
+      'post_content' => esc_html($rewritten_content) . "\n\n" . '<p><a href="' . esc_url($article_url) . '" target="_blank">Read the original article</a></p>',
       'post_status' => $auto_publish === 'yes' ? 'publish' : 'draft',
       'post_author' => $post_author_config == '0' ? get_random_author_id() : $post_author_config,
       'post_category'=> $selected_categories,
