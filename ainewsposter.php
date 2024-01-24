@@ -65,21 +65,21 @@ function ainewsposter_configuration_page() {
             <tr valign="top">
               <th scope="row">Bing News API Key:</th>
               <td>
-                <input type="text" name="ainewsposter_bing_api_key" value="<?php echo get_option('ainewsposter_bing_api_key'); ?>" />
+                <input type="text" name="ainewsposter_bing_api_key" value="<?php echo esc_attr(get_option('ainewsposter_bing_api_key')); ?>" />
                 <p class="description"><a href="https://www.microsoft.com/en-us/bing/apis/bing-news-search-api" tabindex="-1" target="_blank">Bing News Search API</a> retrieves the latest articles for rewriting / summarization</p>
               </td>
             </tr>
             <tr valign="top">
               <th scope="row">PagePixels API Key:</th>
               <td>
-                <input type="text" name="ainewsposter_pagepixels_api_key" value="<?php echo get_option('ainewsposter_pagepixels_api_key'); ?>" />
+                <input type="text" name="ainewsposter_pagepixels_api_key" value="<?php echo esc_attr(get_option('ainewsposter_pagepixels_api_key')); ?>" />
                 <p class="description"><a href="https://pagepixels.com/app/documentation" tabindex="-1" target="_blank">PagePixels</a> retrieves the article's content for rewriting / summarization. After creating your account, you can find your API key in your <a href='https://pagepixels.com/app/users' tabindex="-1" target="_blank">user profile</a>. You'll want to use the Private API Key.</p>
               </td>
             </tr>
             <tr valign="top">
               <th scope="row">OpenAI API Key:</th>
               <td>
-                <input type="text" name="ainewsposter_openai_api_key" value="<?php echo get_option('ainewsposter_openai_api_key'); ?>" />
+                <input type="text" name="ainewsposter_openai_api_key" value="<?php echo esc_attr(get_option('ainewsposter_openai_api_key')); ?>" />
                 <p class="description"><a href="https://platform.openai.com/apps" tabindex="-1" target="_blank">OpenAI</a> rewrites / summarizes the articles.</p>
               </td>
             </tr>
@@ -92,14 +92,14 @@ function ainewsposter_configuration_page() {
             <tr valign="top">
               <th scope="row">News Topics:</th>
               <td>
-                <input type="text" name="ainewsposter_news_query" value="<?php echo get_option('ainewsposter_news_query'); ?>" />
+                <input type="text" name="ainewsposter_news_query" value="<?php echo esc_attr(get_option('ainewsposter_news_query')); ?>" />
                 <p class="description">What sort of news do you want to aggregate?</p>
               </td>
             </tr>
             <tr valign="top">
               <th scope="row">Total Posts to Generate:</th>
               <td>
-                <input type="number" name="ainewsposter_news_count" value="<?php echo get_option('ainewsposter_news_count'); ?>" />
+                <input type="number" name="ainewsposter_news_count" value="<?php echo esc_attr(get_option('ainewsposter_news_count')); ?>" />
                 <p class="description">How many articles should be retrieved and rewritten / summarized? <br />If you prefer a fully automated solution that will post articles when you decide, <a href="https://ainewsposter.com" target="_blank">contact us</a>, we can help.</p>
               </td>
             </tr>
@@ -182,28 +182,28 @@ function ainewsposter_configuration_page() {
             <tr valign="top">
               <th scope="row">Language:</th>
               <td>
-                <input type="text" name="ainewsposter_news_language" value="<?php echo get_option('ainewsposter_news_language'); ?>" />
+                <input type="text" name="ainewsposter_news_language" value="<?php echo esc_attr(get_option('ainewsposter_news_language')); ?>" />
                 <p class="description">Specify the language (e.g., 'en').</p>
               </td>
             </tr>
             <tr valign="top">
               <th scope="row">Sort By:</th>
               <td>
-                <input type="text" name="ainewsposter_news_sortby" value="<?php echo get_option('ainewsposter_news_sortby'); ?>" />
+                <input type="text" name="ainewsposter_news_sortby" value="<?php echo esc_attr(get_option('ainewsposter_news_sortby')); ?>" />
                 <p class="description">Sort the articles (e.g., 'Date').</p>
               </td>
             </tr>
             <tr valign="top">
               <th scope="row">Freshness:</th>
               <td>
-                <input type="text" name="ainewsposter_news_freshness" value="<?php echo get_option('ainewsposter_news_freshness'); ?>" />
+                <input type="text" name="ainewsposter_news_freshness" value="<?php echo esc_attr(get_option('ainewsposter_news_freshness')); ?>" />
                 <p class="description">Filter by freshness (e.g., 'Day').</p>
               </td>
             </tr>
             <tr valign="top">
               <th scope="row">Market:</th>
               <td>
-                <input type="text" name="ainewsposter_news_mkt" value="<?php echo get_option('ainewsposter_news_mkt'); ?>" />
+                <input type="text" name="ainewsposter_news_mkt" value="<?php echo esc_attr(get_option('ainewsposter_news_mkt')); ?>" />
                 <p class="description">Specify the market (e.g., 'en-US').</p>
               </td>
             </tr>
