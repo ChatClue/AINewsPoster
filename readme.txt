@@ -75,6 +75,14 @@ Absolutely
 = 1.0.0 =
 Initial Release.
 
+== Terms and Privacy Policies for API service providers ==
+
+Bing News API (Bing Search API): [Privacy Policy and Terms](https://www.microsoft.com/en-us/bing/apis/legal)
+
+Open AI: [Privacy Policy and Terms](https://openai.com/policies)
+
+PagePixels: [Privacy Policy](https://pagepixels.com/privacy) and [Terms](https://pagepixels.com/terms)
+
 == Additional Information ==
 
 For more information, visit the official [AI News Poster website](https://ainewsposter.com/).
