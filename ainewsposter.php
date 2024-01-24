@@ -9,6 +9,10 @@
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+  exit; // Exit if accessed directly
+}
+
 require_once plugin_dir_path(__FILE__) . 'classes/news_fetcher.php';
 require_once plugin_dir_path(__FILE__) . 'classes/article_processor.php';
 require_once plugin_dir_path(__FILE__) . 'classes/article_generator.php';
