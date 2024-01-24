@@ -155,7 +155,7 @@ function ainewsposter_configuration_page() {
                   $categories = get_categories(array('hide_empty' => 0));
                   foreach ($categories as $category) {
                       $selected = gettype($selected_categories) == "string" ? false : (in_array($category->term_id, $selected_categories) ? ' selected' : '');
-                      echo '<option value="' . esc_attr($category->term_id) . '"' . $selected . '>' . esc_html($category->name) . '</option>';
+                      echo '<option value="' . esc_attr($category->term_id) . '"' . esc_attr($selected) . '>' . esc_html($category->name) . '</option>';
                   }
                   ?>
                 </select>
@@ -170,7 +170,7 @@ function ainewsposter_configuration_page() {
                   $tags = get_tags(array('hide_empty' => 0));
                   foreach ($tags as $tag) {
                       $selected = gettype($selected_tags) == "string" ? false : (in_array($tag->term_id, $selected_tags) ? ' selected' : '');
-                      echo '<option value="' . esc_attr($tag->term_id) . '"' . $selected . '>' . esc_html($tag->name) . '</option>';
+                      echo '<option value="' . esc_attr($tag->term_id) . '"' . esc_attr($selected) . '>' . esc_html($tag->name) . '</option>';
                   }
                   ?>
                 </select>
