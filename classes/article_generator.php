@@ -29,7 +29,7 @@ class AINewsPosterArticleGenerator {
         'Content-Type' => 'application/json',
         'Authorization' => 'Bearer ' . $this->api_key
       ),
-      'body' => json_encode($body),
+      'body' => wp_json_encode($body),
       'timeout' => 30
     ));
 
