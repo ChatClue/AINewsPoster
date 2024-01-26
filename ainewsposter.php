@@ -49,6 +49,7 @@ function ainewsposter_configuration_page() {
     <h1>AI News Poster</h1>
 
     <form method="post" action="options.php">
+      <?php wp_nonce_field('ainewsposter_nonce_action', 'ainewsposter_nonce'); ?>
       <?php settings_fields('ainewsposter_config_group'); ?>
       <!-- Hidden field to store the last active tab index -->
       <input type="hidden" id="ainewsposter_last_tab_index" name="ainewsposter_last_tab_index" value="<?php echo esc_attr($last_tab_index); ?>">
@@ -279,7 +280,9 @@ function ainewsposter_configuration_page() {
 }
 add_action('admin_init', 'ainewsposter_register_config_settings');
 function ainewsposter_save_last_tab_index() {
-  if (isset($_POST['ainewsposter_last_tab_index'])) {
+  if ( isset($_POST['ainewsposter_nonce']) && !wp_verify_nonce($_POST['ainewsposter_nonce'], 'ainewsposter_nonce_action') ) {
+    return;
+  }elseif (isset($_POST['ainewsposter_last_tab_index'])) {
     update_option('ainewsposter_last_tab_index', sanitize_text_field($_POST['ainewsposter_last_tab_index']));
   }
 }
