@@ -19,7 +19,7 @@ require_once plugin_dir_path(__FILE__) . 'classes/article_generator.php';
 
 // Function to add a submenu item in the Settings menu
 function ainewsposter_admin_menu() {
-  add_options_page(
+  add_management_page(
     'AI News Poster',
     'AI News Poster',
     'manage_options',
@@ -289,6 +289,7 @@ function ainewsposter_save_last_tab_index() {
 add_action('admin_init', 'ainewsposter_save_last_tab_index');
 
 function ainewsposter_ajax_fetch_articles() {
+  check_ajax_referer('ainewsposter_ajax_nonce', 'nonce');
   // Retrieve configuration options
   $fetch_api_key = get_option('ainewsposter_bing_api_key');
   $query = get_option('ainewsposter_news_query');
@@ -315,7 +316,9 @@ function ainewsposter_ajax_fetch_articles() {
 add_action('wp_ajax_ainewsposter_fetch_articles', 'ainewsposter_ajax_fetch_articles');
 
 function ainewsposter_ajax_check_for_duplicate_posts() {
+  check_ajax_referer('ainewsposter_ajax_nonce', 'nonce');
   // Sanitize and validate the input
+  
   $article = isset($_POST['article']) ? $_POST['article'] : null;
 
   if (is_array($article) && isset($article['url'])) {
@@ -356,6 +359,7 @@ function ainewsposter_ajax_check_for_duplicate_posts() {
 add_action('wp_ajax_ainewsposter_check_for_duplicate_posts', 'ainewsposter_ajax_check_for_duplicate_posts');
 
 function ainewsposter_ajax_process_article() {
+  check_ajax_referer('ainewsposter_ajax_nonce', 'nonce');
   $pagepixels_api_key = get_option('ainewsposter_pagepixels_api_key');
   $article = isset($_POST['article']) ? $_POST['article'] : null;
 
@@ -396,6 +400,7 @@ function ainewsposter_ajax_process_article() {
 add_action('wp_ajax_ainewsposter_process_article', 'ainewsposter_ajax_process_article');
 
 function ainewsposter_ajax_generate_article() {
+  check_ajax_referer('ainewsposter_ajax_nonce', 'nonce');
   $openai_api_key = get_option('ainewsposter_openai_api_key');
   $openai_model = get_option('ainewsposter_openai_model', 'gpt-3.5-turbo');
   $auto_publish = get_option('ainewsposter_auto_publish', 'no');
@@ -522,7 +527,8 @@ function ainewsposter_enqueue_admin_scripts() {
   wp_enqueue_script('ainewsposter-ajax-script', plugin_dir_url(__FILE__) . 'js/ainewsposter-ajax.js', array('jquery'));
 
   wp_localize_script('ainewsposter-ajax-script', 'ainewsposter_ajax_obj', array(
-      'ajax_url' => admin_url('admin-ajax.php')
+      'ajax_url' => admin_url('admin-ajax.php'),
+      'nonce' => wp_create_nonce('ainewsposter_ajax_nonce')
   ));
 }
 add_action('admin_enqueue_scripts', 'ainewsposter_enqueue_admin_scripts');

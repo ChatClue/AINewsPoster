@@ -1,4 +1,5 @@
 jQuery(document).ready(function($) {
+  console.log("HELLO");
   let tableCount = 0;
   $('.generate-articles-button').click(async function() {
     $(this).prop('disabled', true).text('Processing...');
@@ -91,12 +92,17 @@ jQuery(document).ready(function($) {
     return `<a href="post.php?post=${postId}&action=edit" target="_blank" class='edit-post-button'>Edit Post</a>`;
   }
 
+  console.log(ainewsposter_ajax_obj.nonce);
+
   // Define fetchArticles, processArticle, and generateArticle as async functions
   const fetchArticles = async () => {
     return $.ajax({
       url: ainewsposter_ajax_obj.ajax_url,
       type: 'POST',
-      data: { 'action': 'ainewsposter_fetch_articles' }
+      data: {
+        'action': 'ainewsposter_fetch_articles',
+        'nonce': ainewsposter_ajax_obj.nonce
+      }
     });
   };
 
@@ -106,7 +112,8 @@ jQuery(document).ready(function($) {
       type: 'POST',
       data: {
         'action': 'ainewsposter_check_for_duplicate_posts',
-        'article': article
+        'article': article,
+        'nonce': ainewsposter_ajax_obj.nonce
       }
     });
   };
@@ -117,7 +124,8 @@ jQuery(document).ready(function($) {
       type: 'POST',
       data: {
         'action': 'ainewsposter_process_article',
-        'article': article
+        'article': article,
+        'nonce': ainewsposter_ajax_obj.nonce
       }
     });
   };
@@ -128,8 +136,10 @@ jQuery(document).ready(function($) {
       type: 'POST',
       data: {
         'action': 'ainewsposter_generate_article',
-        'article': processedArticle
+        'article': processedArticle,
+        'nonce': ainewsposter_ajax_obj.nonce
       }
     });
   };
+
 });
