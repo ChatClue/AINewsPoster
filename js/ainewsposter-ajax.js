@@ -1,5 +1,4 @@
 jQuery(document).ready(function($) {
-  console.log("HELLO");
   let tableCount = 0;
   $('.generate-articles-button').click(async function() {
     $(this).prop('disabled', true).text('Processing...');
@@ -91,8 +90,6 @@ jQuery(document).ready(function($) {
   function createEditPostLink(postId) {
     return `<a href="post.php?post=${postId}&action=edit" target="_blank" class='edit-post-button'>Edit Post</a>`;
   }
-
-  console.log(ainewsposter_ajax_obj.nonce);
 
   // Define fetchArticles, processArticle, and generateArticle as async functions
   const fetchArticles = async () => {
