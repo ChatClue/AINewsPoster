@@ -586,7 +586,7 @@ function ainewsposter_redirect_to_settings() {
   if (get_transient('ainewsposter-redirect')) {
     delete_transient('ainewsposter-redirect');
     if (!isset($_GET['activate-multi'])) {
-      wp_redirect(admin_url('options-general.php?page=ainewsposter-setup'));
+      wp_redirect(admin_url('tools.php?page=ainewsposter-setup'));
     }
   }
 }
