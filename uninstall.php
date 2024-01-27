@@ -20,10 +20,12 @@ $option_names = array(
     'ainewsposter_article_author',
     'ainewsposter_auto_publish',
     'ainewsposter_article_categories',
-    'ainewsposter_article_tags'
+    'ainewsposter_article_tags',
+    'ainewsposter_last_tab_index'
 );
 
 // Loop through the options and delete them
 foreach ($option_names as $option_name) {
     delete_option($option_name);
 }
+delete_transient('ainewsposter-redirect');
