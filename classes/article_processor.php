@@ -34,10 +34,22 @@ class AINewsPosterArticleProcessor {
     $html = $data['html'] ?? '';
 
     if (empty($html)) {
-      return null;
+      if($data['error_code'] == "usage_limit_exceeded"){
+        $response = [
+          "success" => false,
+          "error" => $data['error_code']
+        ];
+        return $response;
+      } else {
+        return null;
+      }
     }
 
-    return $this->extract_article_text($html);
+    $response = [
+      "success" => true,
+      "html" => $this->extract_article_text($html)
+    ];
+    return $response;
   }
 
   private function extract_article_text($html) {
@@ -46,22 +58,58 @@ class AINewsPosterArticleProcessor {
     $doc->loadHTML($html);
     libxml_clear_errors();
 
-    // Remove script and style elements
     $xpath = new DOMXPath($doc);
     foreach ($xpath->query('//script | //style') as $node) {
         $node->parentNode->removeChild($node);
     }
 
-    $article = $doc->getElementsByTagName('article')->item(0);
-    if ($article) {
-        // Extract and clean text
-        $text = $article->textContent;
-        $text = preg_replace('/\s+/', ' ', $text); // Replace multiple whitespace with single space
-        $text = trim($text); // Trim leading and trailing whitespace
+    $bestElement = null;
+    $maxScore = 0;
+
+    // Iterate over potential content elements
+    $contentNodes = $xpath->query('//article | //section | //main');
+    foreach ($contentNodes as $node) {
+        if ($this->isLikelyContentNode($node)) {
+            $score = $this->calculateContentScore($node);
+            if ($score > $maxScore) {
+                $maxScore = $score;
+                $bestElement = $node;
+            }
+        }
+    }
+    
+    if ($bestElement) {
+        $text = $bestElement->textContent;
+        $text = preg_replace('/\s+/', ' ', $text);
+        $text = trim($text);
         return $text;
     }
 
     return '';
-}
+  }
+
+  private function isLikelyContentNode($node) {
+      // Implement logic to filter out non-content elements based on id, class, etc.
+      $class = $node->getAttribute('class');
+      $id = $node->getAttribute('id');
+
+      if (preg_match('/(footer|header|menu|nav|sidebar)/i', $class) || preg_match('/(footer|header|menu|nav|sidebar)/i', $id)) {
+          return false;
+      }
+      return true;
+  }
+
+  private function calculateContentScore($node) {
+      // Implement a scoring system based on paragraph count, text length, link density, etc.
+      $textLength = strlen(trim($node->textContent));
+      $paragraphs = $node->getElementsByTagName('p')->length;
+      $links = $node->getElementsByTagName('a')->length;
+
+      $linkDensity = $links / ($textLength + 1);
+      $score = $paragraphs * 50 - $linkDensity * 50;
+
+      return $score;
+  }
+
 
 }

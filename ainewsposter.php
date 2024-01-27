@@ -124,7 +124,7 @@ function ainewsposter_configuration_page() {
                     Draft
                   </label>
                 </div>
-                <p class="description">Should the articles be published immediately upon generation, or should they be created as drafts?</p>
+                <p class="description">Should the articles be published immediately upon generation, or should they be created as drafts?<br />Content retrieval and summarization may not be perfect on every site. Be sure to double check the post's content.</p>
               </td>
             </tr>
             <tr valign="top">
@@ -382,19 +382,28 @@ function ainewsposter_ajax_process_article() {
   // Proceed with processing
   $article_processor = new AINewsPosterArticleProcessor($pagepixels_api_key, $article_url);
   $content = $article_processor->get_article_body();
-
-  if ($content) {
-      $processed_article = [
-          'title' => esc_html($article_name),
-          'content' => esc_html($content),
-          'url' => esc_url($article_url),
-          'image' => esc_url($article_image)
-      ];
-      wp_send_json_success($processed_article);
-  } else {
+  
+  if(!$content['success']){
+    if($content['error'] && $content['error'] == "usage_limit_exceeded"){
+      wp_send_json_error($content['error']);
+      wp_die();
+    }else{
       wp_send_json_error('No content processed.');
+      wp_die();
+    }
+  } else { 
+    if ($content['html']) {
+        $processed_article = [
+            'title' => esc_html($article_name),
+            'content' => esc_html($content['html']),
+            'url' => esc_url($article_url),
+            'image' => esc_url($article_image)
+        ];
+        wp_send_json_success($processed_article);
+    } else {
+        wp_send_json_error('No content processed.');
+    }
   }
-
   wp_die();
 }
 add_action('wp_ajax_ainewsposter_process_article', 'ainewsposter_ajax_process_article');
@@ -437,7 +446,7 @@ function ainewsposter_ajax_generate_article() {
     $selected_tags = is_array($selected_tags) ? array_map('intval', $selected_tags) : array();
     // Check if a post with the same original URL already exists
     $post_data = [
-      'post_title'   => esc_html(html_entity_decode($article_title, ENT_QUOTES | ENT_HTML5)),
+      'post_title'   => esc_html($article_title, ENT_NOQUOTES | ENT_HTML5),
       'post_content' => esc_html($rewritten_content) . "\n\n" . '<p><a href="' . esc_url($article_url) . '" target="_blank">Read the original article</a></p>',
       'post_status' => $auto_publish === 'yes' ? 'publish' : 'draft',
       'post_author' => $post_author_config == '0' ? ainewsposter_get_random_author_id() : $post_author_config,

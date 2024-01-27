@@ -43,7 +43,6 @@ class AINewsPosterNewsFetcher {
 
     if (is_wp_error($response)) {
       // Handle error; possibly return WP_Error
-      error_log('Error fetching news: ' . $response->get_error_message());
       return WP_Error($response);
     }
 

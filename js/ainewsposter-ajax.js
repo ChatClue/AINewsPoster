@@ -25,7 +25,7 @@ jQuery(document).ready(function($) {
             updateArticleStatus(currentTableCount, i, 'Failed: ' + error, 'error');
             continue;
           }
-          if (processedArticle['success'] && processedArticle['data']['content'].length > 250) {
+          if (processedArticle['success'] && processedArticle['data']['content'].length > 100) {
             updateArticleStatus(currentTableCount, i, 'Rewriting/Summarizing...', 'loading');
             var generatedArticle;
             try{
@@ -41,7 +41,11 @@ jQuery(document).ready(function($) {
               updateArticleStatus(currentTableCount, i, 'Completed', 'success', generatedArticle['data']['post_id']);
             }
           } else {
-            updateArticleStatus(currentTableCount, i, 'Failed: Content Retrieved is too short', 'error');
+            if (processedArticle['data'] == 'usage_limit_exceeded') {
+             updateArticleStatus(currentTableCount, i, 'PagePixels Usage Limit reached.<br /><a href="https://pagepixels.com/app/billing/plan" target="_blank" class="button button-primary ainewsposter-save-button margin-top-only">Upgrade Account</a>', 'error');
+            }else{
+              updateArticleStatus(currentTableCount, i, 'Failed: Content Retrieved is too short', 'error');
+            }
           }
         } else {
           updateArticleStatus(currentTableCount, i, 'Failed: Duplicate Post', 'error', duplicatePosts['data']);
