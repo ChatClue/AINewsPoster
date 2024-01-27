@@ -1,6 +1,10 @@
 <?php
 
-class ArticleProcessor {
+if ( ! defined( 'ABSPATH' ) ) {
+  exit; // Exit if accessed directly
+}
+
+class AINewsPosterArticleProcessor {
   private $api_key;
   private $article_url;
 

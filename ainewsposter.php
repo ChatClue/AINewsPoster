@@ -5,7 +5,13 @@
  * Description: AI news summarization and aggregation service for WordPress. 
  * Version: 1.0.0
  * Author: Osiris Development LLC
+ * License: GPLv3
+ * License URI: http://www.gnu.org/licenses/gpl-3.0.html
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+  exit; // Exit if accessed directly
+}
 
 require_once plugin_dir_path(__FILE__) . 'classes/news_fetcher.php';
 require_once plugin_dir_path(__FILE__) . 'classes/article_processor.php';
@@ -13,7 +19,7 @@ require_once plugin_dir_path(__FILE__) . 'classes/article_generator.php';
 
 // Function to add a submenu item in the Settings menu
 function ainewsposter_admin_menu() {
-  add_options_page(
+  add_management_page(
     'AI News Poster',
     'AI News Poster',
     'manage_options',
@@ -26,9 +32,9 @@ add_action('admin_menu', 'ainewsposter_admin_menu');
 function ainewsposter_configuration_page() {
   // Enqueue jQuery UI for tabs
   wp_enqueue_script('jquery-ui-tabs');
-  wp_enqueue_style('jquery-ui-css', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css');
-  wp_enqueue_style('select2', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css');
-  wp_enqueue_script('select2', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js', array('jquery'));
+  wp_enqueue_style('jquery-ui-css', plugins_url('css/vendor/jquery-ui.css', __FILE__));
+  wp_enqueue_style('select2', plugins_url('css/vendor/select2.min.css', __FILE__));
+  wp_enqueue_script('select2', plugins_url('js/vendor/select2.min.js', __FILE__), array('jquery'));
   $last_tab_index = get_option('ainewsposter_last_tab_index', 0);
   // Get options for Post Configuration summary
   $news_query = get_option('ainewsposter_news_query');
@@ -43,6 +49,7 @@ function ainewsposter_configuration_page() {
     <h1>AI News Poster</h1>
 
     <form method="post" action="options.php">
+      <?php wp_nonce_field('ainewsposter_nonce_action', 'ainewsposter_nonce'); ?>
       <?php settings_fields('ainewsposter_config_group'); ?>
       <!-- Hidden field to store the last active tab index -->
       <input type="hidden" id="ainewsposter_last_tab_index" name="ainewsposter_last_tab_index" value="<?php echo esc_attr($last_tab_index); ?>">
@@ -63,21 +70,21 @@ function ainewsposter_configuration_page() {
             <tr valign="top">
               <th scope="row">Bing News API Key:</th>
               <td>
-                <input type="text" name="ainewsposter_bing_api_key" value="<?php echo get_option('ainewsposter_bing_api_key'); ?>" />
+                <input type="text" name="ainewsposter_bing_api_key" value="<?php echo esc_attr(get_option('ainewsposter_bing_api_key')); ?>" />
                 <p class="description"><a href="https://www.microsoft.com/en-us/bing/apis/bing-news-search-api" tabindex="-1" target="_blank">Bing News Search API</a> retrieves the latest articles for rewriting / summarization</p>
               </td>
             </tr>
             <tr valign="top">
               <th scope="row">PagePixels API Key:</th>
               <td>
-                <input type="text" name="ainewsposter_pagepixels_api_key" value="<?php echo get_option('ainewsposter_pagepixels_api_key'); ?>" />
+                <input type="text" name="ainewsposter_pagepixels_api_key" value="<?php echo esc_attr(get_option('ainewsposter_pagepixels_api_key')); ?>" />
                 <p class="description"><a href="https://pagepixels.com/app/documentation" tabindex="-1" target="_blank">PagePixels</a> retrieves the article's content for rewriting / summarization. After creating your account, you can find your API key in your <a href='https://pagepixels.com/app/users' tabindex="-1" target="_blank">user profile</a>. You'll want to use the Private API Key.</p>
               </td>
             </tr>
             <tr valign="top">
               <th scope="row">OpenAI API Key:</th>
               <td>
-                <input type="text" name="ainewsposter_openai_api_key" value="<?php echo get_option('ainewsposter_openai_api_key'); ?>" />
+                <input type="text" name="ainewsposter_openai_api_key" value="<?php echo esc_attr(get_option('ainewsposter_openai_api_key')); ?>" />
                 <p class="description"><a href="https://platform.openai.com/apps" tabindex="-1" target="_blank">OpenAI</a> rewrites / summarizes the articles.</p>
               </td>
             </tr>
@@ -90,14 +97,14 @@ function ainewsposter_configuration_page() {
             <tr valign="top">
               <th scope="row">News Topics:</th>
               <td>
-                <input type="text" name="ainewsposter_news_query" value="<?php echo get_option('ainewsposter_news_query'); ?>" />
+                <input type="text" name="ainewsposter_news_query" value="<?php echo esc_attr(get_option('ainewsposter_news_query')); ?>" />
                 <p class="description">What sort of news do you want to aggregate?</p>
               </td>
             </tr>
             <tr valign="top">
               <th scope="row">Total Posts to Generate:</th>
               <td>
-                <input type="number" name="ainewsposter_news_count" value="<?php echo get_option('ainewsposter_news_count'); ?>" />
+                <input type="number" name="ainewsposter_news_count" value="<?php echo esc_attr(get_option('ainewsposter_news_count')); ?>" />
                 <p class="description">How many articles should be retrieved and rewritten / summarized? <br />If you prefer a fully automated solution that will post articles when you decide, <a href="https://ainewsposter.com" target="_blank">contact us</a>, we can help.</p>
               </td>
             </tr>
@@ -149,7 +156,7 @@ function ainewsposter_configuration_page() {
                   $categories = get_categories(array('hide_empty' => 0));
                   foreach ($categories as $category) {
                       $selected = gettype($selected_categories) == "string" ? false : (in_array($category->term_id, $selected_categories) ? ' selected' : '');
-                      echo '<option value="' . esc_attr($category->term_id) . '"' . $selected . '>' . esc_html($category->name) . '</option>';
+                      echo '<option value="' . esc_attr($category->term_id) . '"' . esc_attr($selected) . '>' . esc_html($category->name) . '</option>';
                   }
                   ?>
                 </select>
@@ -164,7 +171,7 @@ function ainewsposter_configuration_page() {
                   $tags = get_tags(array('hide_empty' => 0));
                   foreach ($tags as $tag) {
                       $selected = gettype($selected_tags) == "string" ? false : (in_array($tag->term_id, $selected_tags) ? ' selected' : '');
-                      echo '<option value="' . esc_attr($tag->term_id) . '"' . $selected . '>' . esc_html($tag->name) . '</option>';
+                      echo '<option value="' . esc_attr($tag->term_id) . '"' . esc_attr($selected) . '>' . esc_html($tag->name) . '</option>';
                   }
                   ?>
                 </select>
@@ -180,28 +187,28 @@ function ainewsposter_configuration_page() {
             <tr valign="top">
               <th scope="row">Language:</th>
               <td>
-                <input type="text" name="ainewsposter_news_language" value="<?php echo get_option('ainewsposter_news_language'); ?>" />
+                <input type="text" name="ainewsposter_news_language" value="<?php echo esc_attr(get_option('ainewsposter_news_language')); ?>" />
                 <p class="description">Specify the language (e.g., 'en').</p>
               </td>
             </tr>
             <tr valign="top">
               <th scope="row">Sort By:</th>
               <td>
-                <input type="text" name="ainewsposter_news_sortby" value="<?php echo get_option('ainewsposter_news_sortby'); ?>" />
+                <input type="text" name="ainewsposter_news_sortby" value="<?php echo esc_attr(get_option('ainewsposter_news_sortby')); ?>" />
                 <p class="description">Sort the articles (e.g., 'Date').</p>
               </td>
             </tr>
             <tr valign="top">
               <th scope="row">Freshness:</th>
               <td>
-                <input type="text" name="ainewsposter_news_freshness" value="<?php echo get_option('ainewsposter_news_freshness'); ?>" />
+                <input type="text" name="ainewsposter_news_freshness" value="<?php echo esc_attr(get_option('ainewsposter_news_freshness')); ?>" />
                 <p class="description">Filter by freshness (e.g., 'Day').</p>
               </td>
             </tr>
             <tr valign="top">
               <th scope="row">Market:</th>
               <td>
-                <input type="text" name="ainewsposter_news_mkt" value="<?php echo get_option('ainewsposter_news_mkt'); ?>" />
+                <input type="text" name="ainewsposter_news_mkt" value="<?php echo esc_attr(get_option('ainewsposter_news_mkt')); ?>" />
                 <p class="description">Specify the market (e.g., 'en-US').</p>
               </td>
             </tr>
@@ -273,13 +280,16 @@ function ainewsposter_configuration_page() {
 }
 add_action('admin_init', 'ainewsposter_register_config_settings');
 function ainewsposter_save_last_tab_index() {
-  if (isset($_POST['ainewsposter_last_tab_index'])) {
+  if ( isset($_POST['ainewsposter_nonce']) && !wp_verify_nonce($_POST['ainewsposter_nonce'], 'ainewsposter_nonce_action') ) {
+    return;
+  }elseif (isset($_POST['ainewsposter_last_tab_index'])) {
     update_option('ainewsposter_last_tab_index', sanitize_text_field($_POST['ainewsposter_last_tab_index']));
   }
 }
 add_action('admin_init', 'ainewsposter_save_last_tab_index');
 
 function ainewsposter_ajax_fetch_articles() {
+  check_ajax_referer('ainewsposter_ajax_nonce', 'nonce');
   // Retrieve configuration options
   $fetch_api_key = get_option('ainewsposter_bing_api_key');
   $query = get_option('ainewsposter_news_query');
@@ -289,8 +299,8 @@ function ainewsposter_ajax_fetch_articles() {
   $freshness = get_option('ainewsposter_news_freshness', 'Day');
   $mkt = get_option('ainewsposter_news_mkt', 'en-US');
 
-  // Initialize NewsFetcher with the configuration options
-  $news_fetcher = new NewsFetcher($fetch_api_key, $query, $language, $count, $sortBy, $freshness, $mkt);
+  // Initialize AINewsPosterNewsFetcher with the configuration options
+  $news_fetcher = new AINewsPosterNewsFetcher($fetch_api_key, $query, $language, $count, $sortBy, $freshness, $mkt);
 
   // Fetch the latest news
   $news_items = $news_fetcher->fetch_latest_news();
@@ -306,42 +316,79 @@ function ainewsposter_ajax_fetch_articles() {
 add_action('wp_ajax_ainewsposter_fetch_articles', 'ainewsposter_ajax_fetch_articles');
 
 function ainewsposter_ajax_check_for_duplicate_posts() {
+  check_ajax_referer('ainewsposter_ajax_nonce', 'nonce');
+  // Sanitize and validate the input
+  
   $article = isset($_POST['article']) ? $_POST['article'] : null;
 
-  $existing_posts = get_posts(array(
-    'meta_key' => 'original_news_url',
-    'meta_value' => $article['url'],
-    'post_status' => array('publish', 'draft'),
-    'posts_per_page' => 1
-  ));
-  if (count($existing_posts) > 0) {
-    wp_send_json_error($existing_posts[0]->ID);
-    wp_die();
-  } else{
-    wp_send_json_success($article);
-    wp_die();
+  if (is_array($article) && isset($article['url'])) {
+      // Sanitize the URL
+      $article_url = sanitize_text_field($article['url']);
+
+      // Validate the URL (Example: Check if it's a valid URL format)
+      if (!filter_var($article_url, FILTER_VALIDATE_URL)) {
+          // If the URL is not valid, send a JSON error
+          wp_send_json_error('Invalid URL');
+          wp_die();
+      }
+
+      // Fetch existing posts with the given meta_value
+      $existing_posts = get_posts(array(
+          'meta_key' => 'original_news_url',
+          'meta_value' => $article_url,
+          'post_status' => array('publish', 'draft'),
+          'posts_per_page' => 1
+      ));
+
+      if (count($existing_posts) > 0) {
+          // If existing posts are found, send the ID as a JSON error
+          wp_send_json_error($existing_posts[0]->ID);
+          wp_die();
+      } else {
+          // Since $article is an array, it's better to escape each element before outputting.
+          $safe_article = array_map('esc_html', $article);
+          wp_send_json_success($safe_article);
+          wp_die();
+      }
+  } else {
+      // If article is not set or not an array, send a JSON error
+      wp_send_json_error('No article data provided');
+      wp_die();
   }
 }
 add_action('wp_ajax_ainewsposter_check_for_duplicate_posts', 'ainewsposter_ajax_check_for_duplicate_posts');
 
 function ainewsposter_ajax_process_article() {
+  check_ajax_referer('ainewsposter_ajax_nonce', 'nonce');
   $pagepixels_api_key = get_option('ainewsposter_pagepixels_api_key');
   $article = isset($_POST['article']) ? $_POST['article'] : null;
 
-  if (!$article) {
-      wp_send_json_error('No article provided.');
+  if (!$article || !is_array($article)) {
+      wp_send_json_error('No article provided or invalid format.');
       wp_die();
   }
 
-  $article_processor = new ArticleProcessor($pagepixels_api_key, $article['url']);
+  // Sanitize and validate each element in the article array
+  $article_url = isset($article['url']) ? sanitize_text_field($article['url']) : null;
+  $article_name = isset($article['name']) ? sanitize_text_field($article['name']) : null;
+  $article_image = isset($article['image']) ? sanitize_text_field($article['image']) : null;
+
+  // Validate URL
+  if (!filter_var($article_url, FILTER_VALIDATE_URL)) {
+      wp_send_json_error('Invalid URL provided.');
+      wp_die();
+  }
+
+  // Proceed with processing
+  $article_processor = new AINewsPosterArticleProcessor($pagepixels_api_key, $article_url);
   $content = $article_processor->get_article_body();
 
   if ($content) {
       $processed_article = [
-          'title' => $article['name'],
-          'content' => $content,
-          'url' => $article['url'],
-          'image' => $article['image']
+          'title' => esc_html($article_name),
+          'content' => esc_html($content),
+          'url' => esc_url($article_url),
+          'image' => esc_url($article_image)
       ];
       wp_send_json_success($processed_article);
   } else {
@@ -353,19 +400,30 @@ function ainewsposter_ajax_process_article() {
 add_action('wp_ajax_ainewsposter_process_article', 'ainewsposter_ajax_process_article');
 
 function ainewsposter_ajax_generate_article() {
+  check_ajax_referer('ainewsposter_ajax_nonce', 'nonce');
   $openai_api_key = get_option('ainewsposter_openai_api_key');
   $openai_model = get_option('ainewsposter_openai_model', 'gpt-3.5-turbo');
   $auto_publish = get_option('ainewsposter_auto_publish', 'no');
   $post_author_config = get_option('ainewsposter_article_author');
   $article = isset($_POST['article']) ? $_POST['article'] : null;
 
-  if (!$article) {
-      wp_send_json_error('No article content provided.');
+  if (!$article || !is_array($article) || !isset($article['data'])) {
+    wp_send_json_error('No article content provided or invalid format.');
+    wp_die();
+  }
+  // Sanitize and validate the article data
+  $article_content = isset($article['data']['content']) ? sanitize_text_field($article['data']['content']) : null;
+  $article_title = isset($article['data']['title']) ? sanitize_text_field($article['data']['title']) : null;
+  $article_url = isset($article['data']['url']) ? esc_url_raw($article['data']['url']) : null;
+
+  // Validate URL
+  if (!filter_var($article_url, FILTER_VALIDATE_URL)) {
+      wp_send_json_error('Invalid URL provided.');
       wp_die();
   }
   $prompt = get_option('ainewsposter_article_prompt');
   $prompt = $prompt . "\n\n" . $article['data']['content'];
-  $article_generator = new ArticleGenerator(
+  $article_generator = new AINewsPosterArticleGenerator(
       $openai_api_key, 
       $prompt, 
       $openai_model
@@ -379,10 +437,10 @@ function ainewsposter_ajax_generate_article() {
     $selected_tags = is_array($selected_tags) ? array_map('intval', $selected_tags) : array();
     // Check if a post with the same original URL already exists
     $post_data = [
-      'post_title' => html_entity_decode($article['data']['title'], ENT_QUOTES | ENT_HTML5),
-      'post_content' => $rewritten_content . "\n\n" . '<p><a href="' . $article['data']['url'] . '" target="_blank">Read the original article</a></p>',
+      'post_title'   => esc_html(html_entity_decode($article_title, ENT_QUOTES | ENT_HTML5)),
+      'post_content' => esc_html($rewritten_content) . "\n\n" . '<p><a href="' . esc_url($article_url) . '" target="_blank">Read the original article</a></p>',
       'post_status' => $auto_publish === 'yes' ? 'publish' : 'draft',
-      'post_author' => $post_author_config == '0' ? get_random_author_id() : $post_author_config,
+      'post_author' => $post_author_config == '0' ? ainewsposter_get_random_author_id() : $post_author_config,
       'post_category'=> $selected_categories,
       'tags_input'   => $selected_tags, 
     ];
@@ -448,7 +506,7 @@ function ainewsposter_set_featured_image_from_url($post_id, $image_url) {
   return true;
 }
 
-function get_random_author_id() {
+function ainewsposter_get_random_author_id() {
   $users = get_users(array('role__in' => array('author', 'administrator'), 'fields' => 'ID'));
   return $users[array_rand($users)];
 }
@@ -469,7 +527,8 @@ function ainewsposter_enqueue_admin_scripts() {
   wp_enqueue_script('ainewsposter-ajax-script', plugin_dir_url(__FILE__) . 'js/ainewsposter-ajax.js', array('jquery'));
 
   wp_localize_script('ainewsposter-ajax-script', 'ainewsposter_ajax_obj', array(
-      'ajax_url' => admin_url('admin-ajax.php')
+      'ajax_url' => admin_url('admin-ajax.php'),
+      'nonce' => wp_create_nonce('ainewsposter_ajax_nonce')
   ));
 }
 add_action('admin_enqueue_scripts', 'ainewsposter_enqueue_admin_scripts');
@@ -527,7 +586,7 @@ function ainewsposter_redirect_to_settings() {
   if (get_transient('ainewsposter-redirect')) {
     delete_transient('ainewsposter-redirect');
     if (!isset($_GET['activate-multi'])) {
-      wp_redirect(admin_url('options-general.php?page=ainewsposter-setup'));
+      wp_redirect(admin_url('tools.php?page=ainewsposter-setup'));
     }
   }
 }

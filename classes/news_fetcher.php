@@ -1,6 +1,10 @@
 <?php
 
-class NewsFetcher {
+if ( ! defined( 'ABSPATH' ) ) {
+  exit; // Exit if accessed directly
+}
+
+class AINewsPosterNewsFetcher {
   private $query;
   private $language;
   private $count;

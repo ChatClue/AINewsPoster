@@ -21,10 +21,10 @@ Key Features:
 - Support for setting custom post authors, categories, and tags.
 - Automatically detects duplicate articles and discards them before writing a new post.
 
-Cost Considerations:
-- [Bing Search API](https://www.microsoft.com/en-us/bing/apis/bing-news-search-api) provides a free tier of 1,000 searches per month.
-- [The PagePixels Screenshot API](https://pagepixels.com/pricing) provides a free tier of 25 captures per month. 
-- [OpenAI API](https://openai.com/pricing) prices depend on the model used. The default model `gpt-3.5-turbo` can generate ~20-30 articles per day for $0.15 to $0.25 cents.
+Third-Party APIs: 
+- [Bing Search API](https://www.microsoft.com/en-us/bing/apis/bing-news-search-api) retrieves relevant articles based on your configuration criteria. They provide a free tier of 1,000 searches per month.
+- [The PagePixels Screenshot API](https://pagepixels.com/pricing) retrieves the full article content from the news URL. They provides a free tier of 25 captures per month. 
+- [OpenAI API](https://openai.com/pricing) rewrites / summarizes the articles. Their pricing depends on the model used. The default model `gpt-3.5-turbo` can generate ~20-30 articles per day for $0.15 to $0.25 cents.
 
 == Installation ==
 
@@ -74,6 +74,14 @@ Absolutely
 
 = 1.0.0 =
 Initial Release.
+
+== Terms and Privacy Policies for Third Party API service providers ==
+
+Bing News API (Bing Search API): [Privacy Policy and Terms](https://www.microsoft.com/en-us/bing/apis/legal)
+
+Open AI: [Privacy Policy and Terms](https://openai.com/policies)
+
+PagePixels: [Privacy Policy](https://pagepixels.com/privacy) and [Terms](https://pagepixels.com/terms)
 
 == Additional Information ==
 
