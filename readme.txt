@@ -46,24 +46,10 @@ Absolutely
 == Screenshots ==
 
 1. Setup API Keys
-
-[https://res.cloudinary.com/drlltxtaf/image/upload/v1705901239/sfalyoxyfdy85riy32ft.png Setup your Bing Search API, PagePixels API, and OpenAI API Keys.]
-
 2. Post Configuration
-
-[https://res.cloudinary.com/drlltxtaf/image/upload/v1705901494/guzpxfkzriggm9aksisa.png Configure the type of news you'd like to aggregate, how many articles you'd like to post, how the AI should write the posts, if the posts should be created as drafts or published immediately, and set the author, categories, and tags.]
-
-3. Bing API Setup
-
-[https://res.cloudinary.com/drlltxtaf/image/upload/v1705901475/ckjxzon7nohuooau4cjl.png Tell bing how to search for the related news articles.]
-
+3. Bing News Search API Setup
 4. OpenAI Setup
-
-[https://res.cloudinary.com/drlltxtaf/image/upload/v1705901493/lu8y646oowacipud3j2a.png Pick which model you would like to use for OpenAI. This is the model that will be used to complete the rewrite. This uses the /v1/chat/completions endpoint for reference]
-
 5. Generate Posts
-
-[https://res.cloudinary.com/drlltxtaf/image/upload/v1705902117/eantw5hysijlxku7enzb.png Generate new posts and see the current progress.]
 
 == Changelog ==
 
