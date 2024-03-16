@@ -280,7 +280,7 @@ function ainewsposter_configuration_page() {
 }
 add_action('admin_init', 'ainewsposter_register_config_settings');
 function ainewsposter_save_last_tab_index() {
-  if ( isset($_POST['ainewsposter_nonce']) && !wp_verify_nonce($_POST['ainewsposter_nonce'], 'ainewsposter_nonce_action') ) {
+  if ( ! isset( $_POST['ainewsposter_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash ( $_POST['ainewsposter_nonce'] ) ) , 'ainewsposter_nonce_action' ) ) {
     return;
   }elseif (isset($_POST['ainewsposter_last_tab_index'])) {
     update_option('ainewsposter_last_tab_index', sanitize_text_field($_POST['ainewsposter_last_tab_index']));
